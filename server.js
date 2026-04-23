@@ -3,20 +3,44 @@ const express = require('express');
 const session = require('express-session');
 const mysql = require('mysql2/promise');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
 
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || process.env.MYSQLHOST,
-  port: Number(process.env.DB_PORT || process.env.MYSQLPORT || 3306),
-  user: process.env.DB_USER || process.env.MYSQLUSER,
-  password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD,
-  database: process.env.DB_NAME || process.env.MYSQLDATABASE,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-});
+const connectionUri = process.env.MYSQL_URL || process.env.MYSQL_PUBLIC_URL || process.env.DATABASE_URL || null;
+
+const pool = connectionUri
+  ? mysql.createPool({
+      uri: connectionUri,
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0,
+      multipleStatements: true
+    })
+  : mysql.createPool({
+      host: process.env.DB_HOST || process.env.MYSQLHOST,
+      port: Number(process.env.DB_PORT || process.env.MYSQLPORT || 3306),
+      user: process.env.DB_USER || process.env.MYSQLUSER,
+      password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD,
+      database: process.env.DB_NAME || process.env.MYSQLDATABASE,
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0,
+      multipleStatements: true
+    });
+
+async function initDatabase() {
+  const sqlPath = path.join(__dirname, 'db.sql');
+  const sql = fs.readFileSync(sqlPath, 'utf8');
+  const connection = await pool.getConnection();
+  try {
+    await connection.query(sql);
+    console.log('Banco inicializado com sucesso.');
+  } finally {
+    connection.release();
+  }
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -241,6 +265,16 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(port, () => {
-  console.log(`Servidor rodando na porta ${port}`);
-});
+async function start() {
+  try {
+    await initDatabase();
+    app.listen(port, () => {
+      console.log(`Servidor rodando na porta ${port}`);
+    });
+  } catch (error) {
+    console.error('Erro ao iniciar aplicação:', error);
+    process.exit(1);
+  }
+}
+
+start();

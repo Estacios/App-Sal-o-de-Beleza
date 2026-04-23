@@ -56,3 +56,8 @@ O painel usa o usuário e senha definidos em:
 
 ## Observação importante
 Você ainda precisa importar o banco com o arquivo `db.sql`.
+
+
+## Criação automática das tabelas
+Esta versão tenta executar automaticamente o arquivo `db.sql` ao iniciar o servidor.
+No Railway, se `MYSQL_URL` ou `MYSQL_PUBLIC_URL` estiver disponível, o app usa essa conexão automaticamente.
