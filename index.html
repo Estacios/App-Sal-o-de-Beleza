@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agenda do Salão</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="header">
+      <div>
+        <h1 id="brandTitle">Agenda do Salão</h1>
+        <p id="brandSubtitle">Agendamento online para clientes</p>
+      </div>
+      <nav class="top-nav">
+        <button class="nav-btn active" data-view="cliente">Agendar</button>
+        <button class="nav-btn" data-view="admin">Painel</button>
+      </nav>
+    </header>
+
+    <main>
+      <section id="view-cliente" class="view active">
+        <div class="card hero-card">
+          <h2>Agende seu horário</h2>
+          <p>Escolha o serviço, veja os horários disponíveis e confirme seu agendamento.</p>
+        </div>
+
+        <div class="card">
+          <h3>Novo agendamento</h3>
+          <form id="bookingForm" class="form-grid">
+            <div>
+              <label>Nome da cliente</label>
+              <input id="clienteNome" required placeholder="Digite seu nome" />
+            </div>
+            <div>
+              <label>WhatsApp</label>
+              <input id="clienteTelefone" required placeholder="(75) 99999-9999" />
+            </div>
+            <div>
+              <label>Serviço</label>
+              <select id="clienteServico" required></select>
+            </div>
+            <div>
+              <label>Data</label>
+              <input id="clienteData" type="date" required />
+            </div>
+            <div>
+              <label>Horário</label>
+              <select id="clienteHora" required></select>
+            </div>
+            <div class="full">
+              <label>Observações</label>
+              <textarea id="clienteObs" rows="3" placeholder="Ex: francesinha, escova modelada, química anterior..."></textarea>
+            </div>
+            <div class="full">
+              <button class="primary" type="submit">Confirmar agendamento</button>
+            </div>
+          </form>
+          <p class="note">Datas disponíveis seguem a regra do salão e horários ocupados ficam bloqueados.</p>
+        </div>
+
+        <div class="card">
+          <h3>Serviços disponíveis</h3>
+          <div id="publicServices"></div>
+        </div>
+      </section>
+
+      <section id="view-admin" class="view">
+        <div id="loginArea" class="card">
+          <h2>Entrar no painel</h2>
+          <form id="loginForm" class="form-grid compact">
+            <div>
+              <label>Usuário</label>
+              <input id="loginUser" required placeholder="Usuário" />
+            </div>
+            <div>
+              <label>Senha</label>
+              <input id="loginPassword" type="password" required placeholder="Senha" />
+            </div>
+            <div class="full">
+              <button class="primary" type="submit">Entrar</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="adminArea" class="hidden">
+          <div class="stats-grid">
+            <div class="card stat-card"><span class="label">Agendamentos hoje</span><strong id="statHoje">0</strong></div>
+            <div class="card stat-card"><span class="label">Clientes</span><strong id="statClientes">0</strong></div>
+            <div class="card stat-card"><span class="label">Serviços</span><strong id="statServicos">0</strong></div>
+            <div class="card stat-card"><span class="label">Faturamento hoje</span><strong id="statFaturamento">R$ 0,00</strong></div>
+          </div>
+
+          <div class="card">
+            <div class="row-between">
+              <h3>Configurações do salão</h3>
+              <button id="logoutBtn" class="secondary">Sair</button>
+            </div>
+            <form id="settingsForm" class="form-grid compact">
+              <div>
+                <label>Nome do salão</label>
+                <input id="salonName" />
+              </div>
+              <div>
+                <label>Subtítulo</label>
+                <input id="salonSubtitle" />
+              </div>
+              <div>
+                <label>Limite de dias à frente</label>
+                <input id="bookingLimitDays" type="number" min="1" max="60" />
+              </div>
+              <div class="full">
+                <label>Horários separados por vírgula</label>
+                <textarea id="hoursInput" rows="3"></textarea>
+              </div>
+              <div class="full weekday-grid">
+                <label><input type="checkbox" class="weekday-check" value="1" /> Segunda</label>
+                <label><input type="checkbox" class="weekday-check" value="2" /> Terça</label>
+                <label><input type="checkbox" class="weekday-check" value="3" /> Quarta</label>
+                <label><input type="checkbox" class="weekday-check" value="4" /> Quinta</label>
+                <label><input type="checkbox" class="weekday-check" value="5" /> Sexta</label>
+                <label><input type="checkbox" class="weekday-check" value="6" /> Sábado</label>
+                <label><input type="checkbox" class="weekday-check" value="0" /> Domingo</label>
+              </div>
+              <div class="full">
+                <button class="primary" type="submit">Salvar configurações</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="two-cols">
+            <div class="card">
+              <h3>Cadastrar serviço</h3>
+              <form id="serviceForm" class="form-grid compact">
+                <div>
+                  <label>Nome</label>
+                  <input id="serviceName" required />
+                </div>
+                <div>
+                  <label>Duração (min)</label>
+                  <input id="serviceDuration" type="number" required />
+                </div>
+                <div>
+                  <label>Valor</label>
+                  <input id="servicePrice" type="number" step="0.01" required />
+                </div>
+                <div class="full"><button class="primary" type="submit">Adicionar serviço</button></div>
+              </form>
+            </div>
+
+            <div class="card">
+              <h3>Serviços cadastrados</h3>
+              <div id="adminServices"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Agendamentos recebidos</h3>
+            <div id="adminBookings"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
